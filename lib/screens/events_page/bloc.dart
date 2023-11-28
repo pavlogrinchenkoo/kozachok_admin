@@ -52,11 +52,11 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
         value: item?.isPaid ?? false,
         controller: TextEditingController(text: item?.date?.toIso8601String()),
       ),
-      FieldModel(
-        title: 'Image',
-        type: FieldType.avatar,
-        imageId: item?.image,
-      ),
+      // FieldModel(
+      //   title: 'Image',
+      //   type: FieldType.avatar,
+      //   image: item?.image,
+      // ),
       FieldModel(
         title: 'Description',
         type: FieldType.text,
@@ -91,13 +91,12 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
 
   onSave(BuildContext context, List<FieldModel> fields, EventModel? item, int i,
       {bool isCreate = false}) async {
-    print(fields);
     final newModel = EventModel(
         name: fields.firstWhere((i) => i.title == 'Name').controller?.text,
         eventPlace:
             fields.firstWhere((i) => i.title == 'Place').controller?.text,
         isPaid: fields.firstWhere((i) => i.title == 'Is paid').value ?? false,
-        image: fields.firstWhere((i) => i.title == 'Image').imageId,
+        // image: fields.firstWhere((i) => i.title == 'Image').imageId,
         desc:
             fields.firstWhere((i) => i.title == 'Description').controller?.text,
         theDateOfThe: DateTime.tryParse(

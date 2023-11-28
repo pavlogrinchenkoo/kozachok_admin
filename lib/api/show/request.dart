@@ -40,4 +40,14 @@ class ShowsRequest {
       ),
     );
   }
+
+  Future<ShowModel> update(ShowModel event) async {
+    await shows.doc(event.id).update(event.toJson());
+    return event;
+  }
+
+  Future<ShowModel> create(ShowModel event) async {
+    await shows.doc(event.id).set(event.toJson());
+    return event;
+  }
 }

@@ -1,14 +1,19 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:image_downloader_web/image_downloader_web.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kozachok_admin/api/storage/request.dart';
 import 'package:kozachok_admin/style.dart';
 import 'package:kozachok_admin/theme/theme_extensions/app_button_theme.dart';
 import 'package:kozachok_admin/widgets/card_elements.dart';
+import 'package:kozachok_admin/widgets/custom_circular_progress_indicator.dart';
 import 'package:kozachok_admin/widgets/spaces.dart';
+import 'dart:html' as html;
 
 @RoutePage()
 class ChangePage extends StatelessWidget {
@@ -72,11 +77,7 @@ class ChangePage extends StatelessWidget {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
                                     // Validation passed.
-                                    onSave != null
-                                        ? onSave?.call()
-                                        : () {
-                                            print(fields);
-                                          };
+                                    onSave != null ? onSave?.call() : () {};
                                   } else {
                                     // Validation failed.
                                   }
@@ -186,14 +187,21 @@ class _CustomFieldWidgetState extends State<CustomFieldWidget> {
             : DateTime.now(),
       );
     } else if (widget.field?.type == FieldType.avatar) {
-      return Row(
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(widget.field?.title ?? ''),
           Space.w8,
-          _AvatarWidget(
-              path: widget.field?.imageId,
-              onChange: (imageId) => onChangedImageId(imageId)),
+          _AvatarWidget(field: widget.field, image: widget.field?.imageId),
+        ],
+      );
+    } else if (widget.field?.type == FieldType.audio) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(widget.field?.title ?? ''),
+          Space.w8,
+          _AudioWidget(field: widget.field, audio: widget.field?.audioId)
         ],
       );
     } else if (widget.field?.type == FieldType.dropdown) {
@@ -224,20 +232,25 @@ class _CustomFieldWidgetState extends State<CustomFieldWidget> {
     setState(() {});
   }
 
-  onChangedImageId(String? value) {
-    widget.field?.imageId = value;
-    setState(() {});
-  }
+// onChangedImageId(XFile? file) {
+//   widget.field?.image = file;
+//   setState(() {});
+// }
+
+// onChangedAudio(XFile? file) {
+//   widget.field?.audio = file;
+//   setState(() {});
+// }
 }
 
 class _AvatarWidget extends StatefulWidget {
   const _AvatarWidget({
-    this.path,
-    this.onChange,
+    this.field,
+    this.image,
   });
 
-  final String? path;
-  final void Function(String? imageId)? onChange;
+  final FieldModel? field;
+  final String? image;
 
   @override
   State<_AvatarWidget> createState() => _AvatarWidgetState();
@@ -257,94 +270,210 @@ class _AvatarWidgetState extends State<_AvatarWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 165,
-        height: 140,
-        decoration:
-            BoxDecoration(border: Border.all(width: 1, color: BC.black)),
-        child: Row(
-          children: [
-            Expanded(
+        constraints: const BoxConstraints(maxWidth: 380),
+        width: double.infinity,
+        height: 200,
+        decoration: BoxDecoration(
+          border: Border.all(width: 1, color: BC.primary),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: widget.field?.imageId == null
+            ? InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () => _uploadPhoto(),
+                child: const Center(child: Icon(Icons.add)))
+            : InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () => _uploadPhoto(),
                 child: image != null
-                    ? Image.memory(image!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity)
-                    : Container(color: BC.gray)),
-            Container(
-              color: BC.primary,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                        splashRadius: 10,
-                        onPressed: () => _downloadPhoto(),
-                        icon: Icon(Icons.download, color: BC.white)),
-                    // IconButton(
-                    //     splashRadius: 10,
-                    //     onPressed: () => _uploadPhoto(),
-                    //     icon: Icon(Icons.change_circle_outlined,
-                    //         color: BC.white)),
-                  ]),
-            )
-          ],
-        ));
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.memory(image!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity),
+                      )
+                    : Container(
+                        decoration: BoxDecoration(
+                          color: BC.gray,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      )));
   }
 
   Future<void> _loadImage() async {
-    if (widget.path == null) return;
-    final res = await _storageRequest.getImage(widget.path!);
-    if (res == null) return;
+    if (widget.image == null) return;
+    final image = await getPhoto(widget.field?.imageId ?? '');
     setState(() {
-      image = res;
+      this.image = image;
     });
   }
 
-  _downloadPhoto() async {
-    if (widget.path == null) return;
-    final image = await _storageRequest.getImage(widget.path.toString());
+  Future<Uint8List> getPhoto(String photoPath) async {
+    final storageRef = FirebaseStorage.instance.ref();
+    final mountainsRef = storageRef.child('image/$photoPath');
+    final photo = await mountainsRef.getData();
+    final xFile = XFile.fromData(photo!, name: photoPath);
+    return await xFile.readAsBytes();
+  }
 
-    if (image != null && image.isNotEmpty) {
-      await WebImageDownloader.downloadImageFromUInt8List(uInt8List: image);
+  _uploadPhoto() async {
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(type: FileType.image, allowMultiple: false);
+    if (result != null) {
+      final bytes = result.files.first.bytes;
+      final photoPath =
+          "${widget.field?.uuid}${getFileExtension(result.files.first.name)}";
+
+      final xFile = XFile.fromData(bytes!, name: photoPath);
+      savePhoto(photoPath, xFile);
+      widget.field?.imageId = photoPath;
+      // widget.onChange!(xFile
+      // );
+      setState(() {
+        image = bytes;
+      });
     }
   }
 
-// _uploadPhoto() async {
-//   Uint8List? file = await ImagePickerWeb.getImageAsBytes();
-//   XFile xfile = XFile(file?.name);
-//
-//   widget.onChange(imageRes?.id);
-//
-//   setState(() {
-//     image = file.;
-//   });
-// }
+  savePhoto(String photoPath, XFile? file) async {
+    if (file == null) return;
+    final storageRef = FirebaseStorage.instance.ref();
+    final mountainsRef = storageRef.child('image/$photoPath');
+
+    final b = await file.readAsBytes();
+
+    await mountainsRef.putData(b);
+    return photoPath;
+  }
+}
+
+class _AudioWidget extends StatefulWidget {
+  const _AudioWidget({
+    this.field,
+    this.audio,
+  });
+
+  final FieldModel? field;
+  final String? audio;
+
+  @override
+  State<_AudioWidget> createState() => _AudioWidgetState();
+}
+
+class _AudioWidgetState extends State<_AudioWidget> {
+  final StorageRequest _storageRequest = StorageRequest();
+  Uint8List? image;
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        width: double.infinity,
+        height: 140,
+        decoration: BoxDecoration(
+          border: Border.all(width: 1, color: BC.primary),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: loading
+            ? CustomCircularProgressIndicator(color: BC.primary)
+            : widget.field?.audioId == null
+                ? InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: () => _uploadAudio(),
+                    child: const Center(child: Icon(Icons.add)))
+                : InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: () => _uploadAudio(),
+                    child: Center(child: Text(widget.field?.audioId ?? ''))));
+  }
+
+  _uploadAudio() async {
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(type: FileType.audio, allowMultiple: false);
+    if (result != null) {
+      setState(() {
+        loading = true;
+      });
+      final bytes = result.files.first.bytes;
+      final audioPath =
+          "${widget.field?.uuid}${getFileExtension(result.files.first.name)}";
+
+      final xFile = XFile.fromData(bytes!, name: audioPath);
+      await saveAudio(audioPath, xFile);
+      widget.field?.audioId = audioPath;
+      // widget.onChange!(xFile
+      // );
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  Future saveAudio(String audioPath, XFile? audio) async {
+    if (audio == null) return;
+    final storageRef = FirebaseStorage.instance.ref();
+    final mountainsRef = storageRef.child('audio/$audioPath');
+
+    final b = await audio.readAsBytes();
+
+    await mountainsRef.putData(b);
+    return audioPath;
+  }
 }
 
 class FieldModel {
   String? title;
   TextEditingController? controller;
   String? imageId;
+  String? audioId;
   bool? value;
   List<dynamic>? values;
   dynamic enumValue;
   FieldType? type;
   bool? enable;
   bool required;
+  String? uuid;
 
   FieldModel(
       {this.title = '',
       this.controller,
       this.imageId,
+      this.audioId,
       this.value,
       this.values,
       this.enumValue,
       this.type = FieldType.text,
       this.enable = true,
-      this.required = false}) {
+      this.required = false,
+      this.uuid}) {
     if (type == FieldType.text && controller == null) {
       controller = TextEditingController();
     }
   }
 }
 
-enum FieldType { checkbox, text, bigText, email, avatar, dropdown, dateTime }
+enum FieldType {
+  checkbox,
+  text,
+  bigText,
+  email,
+  avatar,
+  dropdown,
+  dateTime,
+  audio
+}
+
+String getFileExtension(String? fileName) {
+  try {
+    return ".${fileName?.split('.').last}";
+  } catch (e) {
+    return '';
+  }
+}
