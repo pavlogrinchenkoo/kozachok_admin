@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ThemeColors {
   static const Color white = Color(0xffffffff);
   static const Color black = Color(0xff161621);
-  static const Color primary = Color(0xff547D53);
+  static const Color primary = Color(0xff54537d);
   static const Color silver = Color(0xffF2F4F4);
   static const Color gray = Color(0xff94979A);
   static const Color boxShadow = Color(0x40000000);
