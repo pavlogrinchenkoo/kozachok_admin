@@ -109,6 +109,8 @@ abstract class BRadius {
 
   static BorderRadius get r16 => const BorderRadius.all(Radius.circular(16));
 
+  static BorderRadius get r12 => const BorderRadius.all(Radius.circular(12));
+
   static BorderRadius get r64 => const BorderRadius.all(Radius.circular(64));
 }
 

@@ -3,17 +3,18 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:image_downloader_web/image_downloader_web.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kozachok_admin/api/storage/request.dart';
 import 'package:kozachok_admin/style.dart';
 import 'package:kozachok_admin/theme/theme_extensions/app_button_theme.dart';
+import 'package:kozachok_admin/widgets/app_bar_back_button.dart';
 import 'package:kozachok_admin/widgets/card_elements.dart';
+import 'package:kozachok_admin/widgets/custom_button.dart';
 import 'package:kozachok_admin/widgets/custom_circular_progress_indicator.dart';
 import 'package:kozachok_admin/widgets/spaces.dart';
-import 'dart:html' as html;
 
 @RoutePage()
 class ChangePage extends StatelessWidget {
@@ -44,9 +45,15 @@ class ChangePage extends StatelessWidget {
           children: [
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (title != null)
-                Text(
-                  title ?? '',
-                  style: BS.reg16.apply(color: BC.white),
+                Row(
+                  children: [
+                    const AppBarBackButton(),
+                    Space.w16,
+                    Text(
+                      title ?? '',
+                      style: BS.reg16.apply(color: BC.white),
+                    ),
+                  ],
                 ),
               Space.h32,
               CardBody(
@@ -192,7 +199,10 @@ class _CustomFieldWidgetState extends State<CustomFieldWidget> {
         children: [
           Text(widget.field?.title ?? ''),
           Space.w8,
-          _AvatarWidget(field: widget.field, image: widget.field?.imageId),
+          _AvatarWidget(
+              field: widget.field,
+              image: widget.field?.imageId,
+              context: context),
         ],
       );
     } else if (widget.field?.type == FieldType.audio) {
@@ -201,7 +211,7 @@ class _CustomFieldWidgetState extends State<CustomFieldWidget> {
         children: [
           Text(widget.field?.title ?? ''),
           Space.w8,
-          _AudioWidget(field: widget.field, audio: widget.field?.audioId)
+          _AudioWidget(field: widget.field, audio: widget.field?.audioId),
         ],
       );
     } else if (widget.field?.type == FieldType.dropdown) {
@@ -247,17 +257,20 @@ class _AvatarWidget extends StatefulWidget {
   const _AvatarWidget({
     this.field,
     this.image,
+    this.context,
   });
 
   final FieldModel? field;
   final String? image;
+  final BuildContext? context;
 
   @override
   State<_AvatarWidget> createState() => _AvatarWidgetState();
 }
 
 class _AvatarWidgetState extends State<_AvatarWidget> {
-  final StorageRequest _storageRequest = StorageRequest();
+  late DropzoneViewController controller;
+  bool isHighlighted = false;
   Uint8List? image;
 
   @override
@@ -269,36 +282,64 @@ class _AvatarWidgetState extends State<_AvatarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        constraints: const BoxConstraints(maxWidth: 380),
-        width: double.infinity,
-        height: 200,
-        decoration: BoxDecoration(
-          border: Border.all(width: 1, color: BC.primary),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: widget.field?.imageId == null
-            ? InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: () => _uploadPhoto(),
-                child: const Center(child: Icon(Icons.add)))
-            : InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: () => _uploadPhoto(),
-                child: image != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.memory(image!,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity),
-                      )
-                    : Container(
-                        decoration: BoxDecoration(
-                          color: BC.gray,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      )));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+            constraints: const BoxConstraints(maxWidth: 380),
+            width: double.infinity,
+            height: 200,
+            decoration: BoxDecoration(
+              border: Border.all(width: 1, color: BC.primary),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: widget.field?.imageId == null
+                ? InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: () => _uploadPhoto(),
+                    child: const Center(child: Icon(Icons.add)))
+                : InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: () => _uploadPhoto(),
+                    child: image != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.memory(image!,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity),
+                          )
+                        : Container(
+                            decoration: BoxDecoration(
+                              color: BC.gray,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ))),
+        Space.h8,
+        Stack(
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(right: 16),
+              child: CustomButton(
+                text: 'Move here',
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: DropzoneView(
+                onDrop: _uploadPhotoDrag,
+                onHover: () => setState(() => isHighlighted = true),
+                onLeave: () => setState(() => isHighlighted = false),
+                onCreated: (controller) => this.controller = controller,
+              ),
+            ),
+          ],
+        )
+      ],
+    );
   }
 
   Future<void> _loadImage() async {
@@ -336,6 +377,22 @@ class _AvatarWidgetState extends State<_AvatarWidget> {
     }
   }
 
+  Future<void> _uploadPhotoDrag(dynamic event) async {
+    final name = event.name;
+    Uint8List? bytes = await controller.getFileData(event);
+
+    final photoPath = "${widget.field?.uuid}${getFileExtension(name)}";
+
+    final xFile = XFile.fromData(bytes!, name: photoPath);
+    savePhoto(photoPath, xFile);
+    widget.field?.imageId = photoPath;
+    // widget.onChange!(xFile
+    // );
+    setState(() {
+      image = bytes;
+    });
+  }
+
   savePhoto(String photoPath, XFile? file) async {
     if (file == null) return;
     final storageRef = FirebaseStorage.instance.ref();
@@ -362,8 +419,9 @@ class _AudioWidget extends StatefulWidget {
 }
 
 class _AudioWidgetState extends State<_AudioWidget> {
-  final StorageRequest _storageRequest = StorageRequest();
   Uint8List? image;
+  late DropzoneViewController controller;
+  bool isHighlighted = false;
   bool loading = false;
 
   @override
@@ -373,25 +431,50 @@ class _AudioWidgetState extends State<_AudioWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        constraints: const BoxConstraints(maxWidth: 400),
-        width: double.infinity,
-        height: 140,
-        decoration: BoxDecoration(
-          border: Border.all(width: 1, color: BC.primary),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: loading
-            ? CustomCircularProgressIndicator(color: BC.primary)
-            : widget.field?.audioId == null
-                ? InkWell(
-                    borderRadius: BorderRadius.circular(10),
-                    onTap: () => _uploadAudio(),
-                    child: const Center(child: Icon(Icons.add)))
-                : InkWell(
-                    borderRadius: BorderRadius.circular(10),
-                    onTap: () => _uploadAudio(),
-                    child: Center(child: Text(widget.field?.audioId ?? ''))));
+    return Column(
+      children: [
+        Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            width: double.infinity,
+            height: 140,
+            decoration: BoxDecoration(
+              border: Border.all(width: 1, color: BC.primary),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: loading
+                ? CustomCircularProgressIndicator(color: BC.primary)
+                : widget.field?.audioId == null
+                    ? InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () => _uploadAudio(),
+                        child: const Center(child: Icon(Icons.add)))
+                    : InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () => _uploadAudio(),
+                        child:
+                            Center(child: Text(widget.field?.audioId ?? '')))),
+        Space.h8,
+        Stack(
+          children: [
+            CustomButton(
+              text: 'Move here',
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: DropzoneView(
+                onDrop: _uploadPhotoDrag,
+                onHover: () => setState(() => isHighlighted = true),
+                onLeave: () => setState(() => isHighlighted = false),
+                onCreated: (controller) => this.controller = controller,
+              ),
+            ),
+          ],
+        )
+      ],
+    );
   }
 
   _uploadAudio() async {
@@ -414,6 +497,25 @@ class _AudioWidgetState extends State<_AudioWidget> {
         loading = false;
       });
     }
+  }
+
+  Future<void> _uploadPhotoDrag(dynamic event) async {
+    setState(() {
+      loading = true;
+    });
+
+    final name = event.name;
+    Uint8List? bytes = await controller.getFileData(event);
+
+    final audioPath = "${widget.field?.uuid}${getFileExtension(name)}";
+
+    final xFile = XFile.fromData(bytes, name: audioPath);
+    await saveAudio(audioPath, xFile);
+    widget.field?.audioId = audioPath;
+    setState(() {
+      image = bytes;
+      loading = false;
+    });
   }
 
   Future saveAudio(String audioPath, XFile? audio) async {
@@ -476,4 +578,31 @@ String getFileExtension(String? fileName) {
   } catch (e) {
     return '';
   }
+}
+
+cropFile(imageFile, BuildContext context) async {
+  return await ImageCropper().cropImage(
+    sourcePath: imageFile.path,
+    aspectRatioPresets: [
+      CropAspectRatioPreset.square,
+      CropAspectRatioPreset.ratio3x2,
+      CropAspectRatioPreset.original,
+      CropAspectRatioPreset.ratio4x3,
+      CropAspectRatioPreset.ratio16x9
+    ],
+    uiSettings: [
+      AndroidUiSettings(
+          toolbarTitle: 'Cropper',
+          toolbarColor: Colors.deepOrange,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false),
+      IOSUiSettings(
+        title: 'Cropper',
+      ),
+      WebUiSettings(
+        context: context,
+      ),
+    ],
+  );
 }
