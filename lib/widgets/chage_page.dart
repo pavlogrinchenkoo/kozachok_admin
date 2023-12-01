@@ -214,6 +214,15 @@ class _CustomFieldWidgetState extends State<CustomFieldWidget> {
           _AudioWidget(field: widget.field, audio: widget.field?.audioId),
         ],
       );
+    } else if (widget.field?.type == FieldType.video) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(widget.field?.title ?? ''),
+          Space.w8,
+          _VideoWidget(field: widget.field, audio: widget.field?.videoId),
+        ],
+      );
     } else if (widget.field?.type == FieldType.dropdown) {
       return FormBuilderDropdown(
         name: widget.field?.title ?? '',
@@ -530,11 +539,135 @@ class _AudioWidgetState extends State<_AudioWidget> {
   }
 }
 
+class _VideoWidget extends StatefulWidget {
+  const _VideoWidget({
+    this.field,
+    this.audio,
+  });
+
+  final FieldModel? field;
+  final String? audio;
+
+  @override
+  State<_VideoWidget> createState() => _VideoWidgetState();
+}
+
+class _VideoWidgetState extends State<_VideoWidget> {
+  late DropzoneViewController controller;
+  bool isHighlighted = false;
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            width: double.infinity,
+            height: 140,
+            decoration: BoxDecoration(
+              border: Border.all(width: 1, color: BC.primary),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: loading
+                ? CustomCircularProgressIndicator(color: BC.primary)
+                : widget.field?.videoId == null
+                    ? InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () => _uploadVideo(),
+                        child: const Center(child: Icon(Icons.add)))
+                    : InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () => _uploadVideo(),
+                        child:
+                            Center(child: Text(widget.field?.videoId ?? '')))),
+        Space.h8,
+        Stack(
+          children: [
+            CustomButton(
+              text: 'Move here',
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: DropzoneView(
+                onDrop: _uploadPhotoDrag,
+                onHover: () => setState(() => isHighlighted = true),
+                onLeave: () => setState(() => isHighlighted = false),
+                onCreated: (controller) => this.controller = controller,
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  _uploadVideo() async {
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(type: FileType.audio, allowMultiple: false);
+    if (result != null) {
+      setState(() {
+        loading = true;
+      });
+      final bytes = result.files.first.bytes;
+      final videoPath =
+          "${widget.field?.uuid}${getFileExtension(result.files.first.name)}";
+
+      final xFile = XFile.fromData(bytes!, name: videoPath);
+      await saveVideo(videoPath, xFile);
+      widget.field?.videoId = videoPath;
+      // widget.onChange!(xFile
+      // );
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  Future<void> _uploadPhotoDrag(dynamic event) async {
+    setState(() {
+      loading = true;
+    });
+
+    final name = event.name;
+    Uint8List? bytes = await controller.getFileData(event);
+
+    final audioPath = "${widget.field?.uuid}${getFileExtension(name)}";
+
+    final xFile = XFile.fromData(bytes, name: audioPath);
+    await saveVideo(audioPath, xFile);
+    widget.field?.videoId = audioPath;
+    setState(() {
+      loading = false;
+    });
+  }
+
+  Future saveVideo(String audioPath, XFile? audio) async {
+    if (audio == null) return;
+    final storageRef = FirebaseStorage.instance.ref();
+    final mountainsRef = storageRef.child('video/$audioPath');
+
+    final b = await audio.readAsBytes();
+
+    await mountainsRef.putData(b);
+    return audioPath;
+  }
+}
+
 class FieldModel {
   String? title;
   TextEditingController? controller;
   String? imageId;
   String? audioId;
+  String? videoId;
   bool? value;
   List<dynamic>? values;
   dynamic enumValue;
@@ -548,6 +681,7 @@ class FieldModel {
       this.controller,
       this.imageId,
       this.audioId,
+      this.videoId,
       this.value,
       this.values,
       this.enumValue,
@@ -569,7 +703,8 @@ enum FieldType {
   avatar,
   dropdown,
   dateTime,
-  audio
+  audio,
+  video
 }
 
 String getFileExtension(String? fileName) {

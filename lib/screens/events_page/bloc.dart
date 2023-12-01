@@ -5,6 +5,7 @@ import 'package:kozachok_admin/api/events/request.dart';
 import 'package:kozachok_admin/routers/routes.dart';
 import 'package:kozachok_admin/utils/bloc_base.dart';
 import 'package:kozachok_admin/widgets/chage_page.dart';
+import 'package:uuid/uuid.dart';
 
 class EventsBloc extends BlocBaseWithState<ScreenState> {
   @override
@@ -33,6 +34,7 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
   }
 
   openChange(BuildContext context, EventModel? item, int i) {
+    final uuid = const Uuid().v1();
     final fields = [
       FieldModel(
         title: 'Name',
@@ -52,11 +54,16 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
         value: item?.isPaid ?? false,
         controller: TextEditingController(text: item?.date?.toIso8601String()),
       ),
-      // FieldModel(
-      //   title: 'Image',
-      //   type: FieldType.avatar,
-      //   image: item?.image,
-      // ),
+      FieldModel(
+          title: 'Image',
+          uuid: item?.id ?? uuid,
+          type: FieldType.avatar,
+          imageId: item?.image),
+      FieldModel(
+          title: 'Video',
+          uuid: item?.id ?? uuid,
+          type: FieldType.video,
+          videoId: item?.video),
       FieldModel(
         title: 'Description',
         type: FieldType.text,
@@ -82,26 +89,33 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
       ),
     ];
 
-    context.router.push(ChangeRoute(
-        fields: fields,
-        title: 'Event',
-        onSave: () =>
-            {onSave(context, fields, item, i, isCreate: item?.id == null)}));
+    context.router
+        .push(ChangeRoute(
+            fields: fields,
+            title: 'Show',
+            onSave: () => {
+                  onSave(context, fields, item, i,
+                      isCreate: item?.id == null, newUuid: uuid),
+                }))
+        .whenComplete(() => init());
   }
 
   onSave(BuildContext context, List<FieldModel> fields, EventModel? item, int i,
-      {bool isCreate = false}) async {
+      {bool isCreate = false, String? newUuid}) async {
     final newModel = EventModel(
         name: fields.firstWhere((i) => i.title == 'Name').controller?.text,
         eventPlace:
             fields.firstWhere((i) => i.title == 'Place').controller?.text,
         isPaid: fields.firstWhere((i) => i.title == 'Is paid').value ?? false,
-        // image: fields.firstWhere((i) => i.title == 'Image').imageId,
+        image: fields.firstWhere((i) => i.title == 'Image').imageId,
+        video: fields.firstWhere((i) => i.title == 'Video').videoId,
         desc:
             fields.firstWhere((i) => i.title == 'Description').controller?.text,
-        theDateOfThe: DateTime.tryParse(
-            fields.firstWhere((i) => i.title == 'The date of the').controller?.text ??
-                DateTime.now().toIso8601String()),
+        theDateOfThe: DateTime.tryParse(fields
+                .firstWhere((i) => i.title == 'The date of the')
+                .controller
+                ?.text ??
+            DateTime.now().toIso8601String()),
         contact:
             fields.firstWhere((i) => i.title == 'Contact').controller?.text,
         status: fields.firstWhere((i) => i.title == 'Status').enumValue,
@@ -109,7 +123,7 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
         date: item?.date ?? DateTime.now());
 
     if (isCreate) {
-      onCreate(context, newModel, i);
+      onCreate(context, newModel, i, newUuid ?? '');
       return;
     }
     final res = await _request.update(newModel);
@@ -132,18 +146,19 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
   }
 
   Future<void> onCreate(
-      BuildContext context, EventModel newModel, int i) async {
+      BuildContext context, EventModel newModel, int i, String newUuid) async {
     final requestModel = EventModel(
         name: newModel.name,
         eventPlace: newModel.eventPlace,
         isPaid: newModel.isPaid,
         image: newModel.image,
+        video: newModel.video,
         desc: newModel.desc,
         theDateOfThe: newModel.theDateOfThe,
         contact: newModel.contact,
         status: newModel.status,
         date: newModel.date,
-        id: newModel.id);
+        id: newUuid);
 
     final res = await _request.create(requestModel);
     replaceItem(res, newModel, i);

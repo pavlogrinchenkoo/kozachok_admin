@@ -12,6 +12,7 @@ EventModel _$EventModelFromJson(Map<String, dynamic> json) => EventModel(
           json['date'] == null ? null : DateTime.parse(json['date'] as String),
       isPaid: json['isPaid'] as bool?,
       image: json['image'] as String?,
+      video: json['video'] as String?,
       name: json['name'] as String?,
       desc: json['desc'] as String?,
       theDateOfThe: json['theDateOfThe'] == null
@@ -28,6 +29,7 @@ Map<String, dynamic> _$EventModelToJson(EventModel instance) =>
       'date': instance.date?.toIso8601String(),
       'isPaid': instance.isPaid,
       'image': instance.image,
+      'video': instance.video,
       'name': instance.name,
       'desc': instance.desc,
       'theDateOfThe': instance.theDateOfThe?.toIso8601String(),

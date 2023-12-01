@@ -10,6 +10,7 @@ class EventModel {
   DateTime? date;
   bool? isPaid;
   String? image;
+  String? video;
   String? name;
   String? desc;
   DateTime? theDateOfThe;
@@ -22,6 +23,7 @@ class EventModel {
       this.date,
       this.isPaid,
       this.image,
+      this.video,
       this.name,
       this.desc,
       this.theDateOfThe,

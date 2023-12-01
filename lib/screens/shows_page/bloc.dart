@@ -74,7 +74,6 @@ class ShowsBloc extends BlocBaseWithState<ScreenState> {
           audioId: item?.audio),
     ];
 
-    if (context.mounted) {
       context.router
           .push(ChangeRoute(
               fields: fields,
@@ -84,7 +83,6 @@ class ShowsBloc extends BlocBaseWithState<ScreenState> {
                         isCreate: item?.id == null, newUuid: uuid),
                   }))
           .whenComplete(() => init());
-    }
   }
 
   onSave(BuildContext context, List<FieldModel> fields, ShowModel? item, int i,
