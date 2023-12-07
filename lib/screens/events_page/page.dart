@@ -32,7 +32,7 @@ class _EventsPageState extends State<EventsPage> {
 
   @override
   void initState() {
-    _bloc.init();
+    _bloc.init(context);
     super.initState();
   }
 
@@ -41,34 +41,37 @@ class _EventsPageState extends State<EventsPage> {
     return CustomStreamBuilder(
         bloc: _bloc,
         builder: (context, ScreenState state) {
-          if (state.events.isEmpty) {
+          if (state.loading) {
             return const Center(child: CircularProgressIndicator());
           }
           return Scaffold(
             body: Padding(
               padding: const EdgeInsets.all(32),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomSheetHeaderWidget(
                       title: 'Events',
-                      onSave: () => _bloc.openChange(context, EventModel(), -1)),
+                      onSave: () =>
+                          _bloc.openChange(context, EventModel(), -1)),
                   Space.h32,
                   Expanded(
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        CustomSheetWidget(
-                          columns: <DataColumn>[
-                            for (final title in titles)
-                              DataColumn(
-                                label: Expanded(
-                                  child: Text(title),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          CustomSheetWidget(
+                            columns: <DataColumn>[
+                              for (final title in titles)
+                                DataColumn(
+                                  label: Expanded(
+                                    child: Text(title),
+                                  ),
                                 ),
-                              ),
-                          ],
-                          rows: _rows(state.events),
-                        ),
-                      ],
+                            ],
+                            rows: _rows(state.events),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

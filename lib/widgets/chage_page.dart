@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:crop/crop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -12,17 +13,26 @@ import 'package:kozachok_admin/style.dart';
 import 'package:kozachok_admin/theme/theme_extensions/app_button_theme.dart';
 import 'package:kozachok_admin/widgets/app_bar_back_button.dart';
 import 'package:kozachok_admin/widgets/card_elements.dart';
+
+// import 'package:kozachok_admin/widgets/crop/crop_your_image.dart';
 import 'package:kozachok_admin/widgets/custom_button.dart';
 import 'package:kozachok_admin/widgets/custom_circular_progress_indicator.dart';
 import 'package:kozachok_admin/widgets/spaces.dart';
 
 @RoutePage()
 class ChangePage extends StatelessWidget {
-  ChangePage({this.fields, this.title, this.onSave, this.widget, super.key});
+  ChangePage(
+      {this.fields,
+      this.title,
+      this.onSave,
+      this.onDelete,
+      this.widget,
+      super.key});
 
   final List<FieldModel>? fields;
   final String? title;
   final void Function()? onSave;
+  final void Function()? onDelete;
   final Widget? widget;
 
   final _formKey = GlobalKey<FormBuilderState>();
@@ -73,24 +83,43 @@ class ChangePage extends StatelessWidget {
                           padding: const EdgeInsets.only(top: 36),
                           child: Align(
                             alignment: Alignment.centerLeft,
-                            child: SizedBox(
-                              height: 36.0,
-                              width: 100.0,
-                              child: ElevatedButton(
-                                style: themeData
-                                    .extension<AppButtonTheme>()!
-                                    .primaryElevated,
-                                onPressed: () {
-                                  if (_formKey.currentState?.validate() ??
-                                      false) {
-                                    // Validation passed.
-                                    onSave != null ? onSave?.call() : () {};
-                                  } else {
-                                    // Validation failed.
-                                  }
-                                },
-                                child: const Text('Save'),
-                              ),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  height: 36.0,
+                                  width: 100.0,
+                                  child: ElevatedButton(
+                                    style: themeData
+                                        .extension<AppButtonTheme>()!
+                                        .primaryElevated,
+                                    onPressed: () {
+                                      if (_formKey.currentState?.validate() ??
+                                          false) {
+                                        // Validation passed.
+                                        onSave != null ? onSave?.call() : () {};
+                                      } else {
+                                        // Validation failed.
+                                      }
+                                    },
+                                    child: const Text('Save'),
+                                  ),
+                                ),
+                                Space.w22,
+                                if (onDelete != null)
+                                  SizedBox(
+                                    height: 36.0,
+                                    width: 100.0,
+                                    child: ElevatedButton(
+                                      style: themeData
+                                          .extension<AppButtonTheme>()!
+                                          .primaryElevated,
+                                      onPressed: () {
+                                        onDelete?.call();
+                                      },
+                                      child: const Text('Delete'),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
                         ),
@@ -740,4 +769,65 @@ cropFile(imageFile, BuildContext context) async {
       ),
     ],
   );
+}
+
+Future<Uint8List?> _showCropper(
+    BuildContext context, PlatformFile? file) async {
+  final controller = CropController();
+  BoxShape shape = BoxShape.rectangle;
+  return await showGeneralDialog(
+      context: context,
+      barrierColor: Colors.black12.withOpacity(0.6),
+      // Background color
+      barrierDismissible: false,
+      barrierLabel: 'Dialog',
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, __, ___) {
+        return Column(
+          children: [
+            // Expanded(
+            //   child: Crop(
+            //       image: file?.bytes ?? Uint8List(0),
+            //       controller: controller,
+            //       aspectRatio: 372 / 216,
+            //       fixAspectRatio: false,
+            //       onCropped: (image) {
+            //         context.router.pop(image);
+            //       }),
+            // ),
+            Crop(
+              onChanged: (decomposition) {},
+              controller: controller,
+              shape: shape,
+              /* It's very important to set `fit: BoxFit.cover`.
+                   Do NOT remove this line.
+                   There are a lot of issues on github repo by people who remove this line and their image is not shown correctly.
+                */
+              foreground: IgnorePointer(
+                child: Container(
+                  alignment: Alignment.bottomRight,
+                  child: const Text(
+                    'Foreground Object',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
+              helper: shape == BoxShape.rectangle
+                  ? Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                    )
+                  : null,
+              child: Image.asset(
+                'images/sample.jpg',
+                fit: BoxFit.cover,
+              ),
+            ),
+            ElevatedButton(child: Text('Crop it!'), onPressed: () => {}),
+          ],
+        );
+      }).then((value) async {
+    return value as Uint8List?;
+  });
 }

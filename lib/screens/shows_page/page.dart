@@ -47,27 +47,29 @@ class _ShowsPageState extends State<ShowsPage> {
             body: Padding(
               padding: const EdgeInsets.all(32),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomSheetHeaderWidget(
                       title: 'Shows',
                       onSave: () => _bloc.openChange(context, ShowModel(), -1)),
                   Space.h32,
                   Expanded(
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        CustomSheetWidget(
-                          columns: <DataColumn>[
-                            for (final title in titles)
-                              DataColumn(
-                                label: Expanded(
-                                  child: Text(title),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          CustomSheetWidget(
+                            columns: <DataColumn>[
+                              for (final title in titles)
+                                DataColumn(
+                                  label: Expanded(
+                                    child: Text(title),
+                                  ),
                                 ),
-                              ),
-                          ],
-                          rows: _rows(state.shows),
-                        ),
-                      ],
+                            ],
+                            rows: _rows(state.shows),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

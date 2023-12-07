@@ -5,6 +5,7 @@ import 'package:kozachok_admin/api/events/request.dart';
 import 'package:kozachok_admin/routers/routes.dart';
 import 'package:kozachok_admin/utils/bloc_base.dart';
 import 'package:kozachok_admin/widgets/chage_page.dart';
+import 'package:path/path.dart';
 import 'package:uuid/uuid.dart';
 
 class EventsBloc extends BlocBaseWithState<ScreenState> {
@@ -16,21 +17,34 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
     setState(ScreenState());
   }
 
-  Future<void> init() async {
+  Future<void> init(BuildContext context) async {
+    setState(currentState.copyWith(loading: true));
     final List<EventModel> events = await _request.getEvents();
-    events.sort((a, b) => b.date!.compareTo(a.date!));
-    setState(currentState.copyWith(events: events));
+    events.removeWhere((element) {
+      if (element.theDateOfThe!.difference(DateTime.now()).inDays < 0) {
+        _request.delete(element.id ?? '', context, withOutDialog: true);
+        return true;
+      } else {
+        return false;
+      }
+    });
+    events.sort((a, b) => b.theDateOfThe!.compareTo(a.theDateOfThe!));
+    setState(currentState.copyWith(events: events, loading: false));
   }
 
   delete(String id, BuildContext context) async {
     await _request.delete(id, context);
-    init();
+    if (context.mounted) {
+      context.router.pop();
+      init(context);
+    }
   }
 
-  updateStatus(EventStatus status, EventModel event) async {
+  updateStatus(
+      EventStatus status, EventModel event, BuildContext context) async {
     event.status = status;
     await _request.update(event);
-    init();
+    if (context.mounted) init(context);
   }
 
   openChange(BuildContext context, EventModel? item, int i) {
@@ -59,11 +73,11 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
           uuid: item?.id ?? uuid,
           type: FieldType.avatar,
           imageId: item?.image),
-      FieldModel(
-          title: 'Video',
-          uuid: item?.id ?? uuid,
-          type: FieldType.video,
-          videoId: item?.video),
+      // FieldModel(
+      //     title: 'Video',
+      //     uuid: item?.id ?? uuid,
+      //     type: FieldType.video,
+      //     videoId: item?.video),
       FieldModel(
         title: 'Description',
         type: FieldType.text,
@@ -73,7 +87,8 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
         title: 'The date of the',
         type: FieldType.dateTime,
         required: true,
-        controller: TextEditingController(text: item?.date?.toIso8601String()),
+        controller:
+            TextEditingController(text: item?.theDateOfThe?.toIso8601String()),
       ),
       FieldModel(
         title: 'Contact',
@@ -96,8 +111,9 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
             onSave: () => {
                   onSave(context, fields, item, i,
                       isCreate: item?.id == null, newUuid: uuid),
-                }))
-        .whenComplete(() => init());
+                },
+            onDelete: () => {delete(item?.id ?? '', context)}))
+        .whenComplete(() => init(context));
   }
 
   onSave(BuildContext context, List<FieldModel> fields, EventModel? item, int i,
@@ -108,14 +124,15 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
             fields.firstWhere((i) => i.title == 'Place').controller?.text,
         isPaid: fields.firstWhere((i) => i.title == 'Is paid').value ?? false,
         image: fields.firstWhere((i) => i.title == 'Image').imageId,
-        video: fields.firstWhere((i) => i.title == 'Video').videoId,
+        // video: fields.firstWhere((i) => i.title == 'Video').videoId,
         desc:
             fields.firstWhere((i) => i.title == 'Description').controller?.text,
         theDateOfThe: DateTime.tryParse(fields
-                .firstWhere((i) => i.title == 'The date of the')
-                .controller
-                ?.text ??
-            DateTime.now().toIso8601String()),
+                    .firstWhere((i) => i.title == 'The date of the')
+                    .controller
+                    ?.text ??
+                '') ??
+            DateTime.now(),
         contact:
             fields.firstWhere((i) => i.title == 'Contact').controller?.text,
         status: fields.firstWhere((i) => i.title == 'Status').enumValue,
@@ -131,7 +148,9 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
     if (context.mounted) context.router.pop();
   }
 
-  void replaceItem(EventModel changed, EventModel newVariable, int i) {
+  void replaceItem(EventModel? changed, EventModel? newVariable, int i) {
+    if (changed == null) return;
+    if (newVariable == null) return;
     if (changed.id == null) return;
     final events = [...currentState.events];
     if (i == -1) {
@@ -152,7 +171,7 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
         eventPlace: newModel.eventPlace,
         isPaid: newModel.isPaid,
         image: newModel.image,
-        video: newModel.video,
+        // video: newModel.video,
         desc: newModel.desc,
         theDateOfThe: newModel.theDateOfThe,
         contact: newModel.contact,

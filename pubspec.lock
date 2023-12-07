@@ -25,6 +25,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.2.0"
+  archive:
+    dependency: transitive
+    description:
+      name: archive
+      sha256: "7b875fd4a20b165a3084bd2d210439b22ebc653f21cea4842729c0c30c82596b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.4.9"
   args:
     dependency: transitive
     description:
@@ -201,6 +209,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
+  collision:
+    dependency: transitive
+    description:
+      name: collision
+      sha256: "2bd2eb6a9dfc69bc9d92cb3401dcfadb3b8429a261102ec0e59a91c0f5fcab25"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   convert:
     dependency: transitive
     description:
@@ -209,6 +225,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  crop:
+    dependency: "direct main"
+    description:
+      name: crop
+      sha256: "9d94ec70fb2a5b1f4c30a686db561ed2395a900e5b17f44a0111f2c70ecf6889"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.5"
+  crop_your_image:
+    dependency: "direct main"
+    description:
+      name: crop_your_image
+      sha256: "1dc98a5a35b424007bb0960bed011f2d0eecbcef7839707e97d349520245354c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.5"
   cross_file:
     dependency: transitive
     description:
@@ -509,6 +541,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  image:
+    dependency: transitive
+    description:
+      name: image
+      sha256: "028f61960d56f26414eb616b48b04eb37d700cbe477b7fb09bf1d7ce57fd9271"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.3"
   image_cropper:
     dependency: "direct main"
     description:
@@ -789,6 +829,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.6"
+  pointycastle:
+    dependency: transitive
+    description:
+      name: pointycastle
+      sha256: "7c1e5f0d23c9016c5bbd8b1473d0d3fb3fc851b876046039509e18e0c7485f2c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.7.3"
   pool:
     dependency: transitive
     description:

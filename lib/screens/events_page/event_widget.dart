@@ -67,7 +67,7 @@ class _EventWidgetState extends State<EventWidget> {
               DropdownMenuExample(
                   status: widget.event.status,
                   onChange: (EventStatus status) =>
-                      widget.bloc.updateStatus(status, widget.event)),
+                      widget.bloc.updateStatus(status, widget.event, context)),
               IconButton(
                   onPressed: () =>
                       widget.bloc.delete(widget.event.id ?? '', context),

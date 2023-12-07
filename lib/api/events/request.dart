@@ -2,8 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:kozachok_admin/api/events/dto.dart';
 
+import '../storage/request.dart';
+
 class EventRequest {
   CollectionReference events = FirebaseFirestore.instance.collection('events');
+  final StorageRequest _storage = StorageRequest();
 
   create(EventModel data) async {
     await events.doc(data.id).set(data.toJson());
@@ -19,7 +22,18 @@ class EventRequest {
     return shows;
   }
 
-  Future<void> delete(String id, BuildContext context) async {
+  deleteEvent(String id) async {
+    final event = (await events.doc(id).get()).data() as Map<String, dynamic>;
+    await events.doc(id).delete();
+    _storage.deleteImage(event['image']);
+  }
+
+  Future<void> delete(String id, BuildContext context,
+      {bool withOutDialog = false}) async {
+    if (withOutDialog) {
+      deleteEvent(id);
+      return;
+    }
     await showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -31,7 +45,7 @@ class EventRequest {
           ),
           TextButton(
             onPressed: () async {
-              await events.doc(id).delete();
+              await deleteEvent(id);
               if (context.mounted) Navigator.pop(context, 'OK');
             },
             child: const Text('OK'),

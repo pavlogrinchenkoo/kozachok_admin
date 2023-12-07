@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:kozachok_admin/api/show/dto.dart';
+import 'package:kozachok_admin/api/storage/request.dart';
 
 class ShowsRequest {
   CollectionReference shows = FirebaseFirestore.instance.collection('shows');
+  final StorageRequest _storage = StorageRequest();
 
   setShows(ShowModel data) async {
     await shows.doc(data.id).set(data.toJson());
@@ -19,6 +21,13 @@ class ShowsRequest {
     return shows;
   }
 
+  deleteShow(String id) async {
+    final show = (await shows.doc(id).get()).data() as Map<String, dynamic>;
+    await shows.doc(id).delete();
+    _storage.deleteImage(show['photo']);
+    _storage.deleteAudio(show['audio']);
+  }
+
   Future<void> delete(String id, BuildContext context) async {
     await showDialog<String>(
       context: context,
@@ -31,7 +40,7 @@ class ShowsRequest {
           ),
           TextButton(
             onPressed: () async {
-              await shows.doc(id).delete();
+              deleteShow(id);
               if (context.mounted) Navigator.pop(context, 'OK');
             },
             child: const Text('OK'),

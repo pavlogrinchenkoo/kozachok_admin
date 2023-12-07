@@ -37,6 +37,8 @@ dependencies:
   flutter_dropzone: ^3.0.6
   drop_zone: ^1.0.2
   image_cropper: ^5.0.1
+  crop_your_image: ^0.7.5
+  crop: ^0.5.5
 
 dev_dependencies:
   json_serializable: ^6.7.1

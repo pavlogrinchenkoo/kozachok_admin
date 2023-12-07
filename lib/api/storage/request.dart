@@ -67,4 +67,10 @@ class StorageRequest {
 
     return audio;
   }
+
+  Future<void> deleteAudio(String name) async {
+    final imageRef = storageRef.child('audio/$name');
+
+    await imageRef.delete();
+  }
 }

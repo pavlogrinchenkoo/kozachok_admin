@@ -18,6 +18,14 @@ class ShowsBloc extends BlocBaseWithState<ScreenState> {
     setState(ScreenState());
   }
 
+  delete(String id, BuildContext context) async {
+    await _request.delete(id, context);
+    if (context.mounted) {
+      context.router.pop();
+      init();
+    }
+  }
+
   savePhoto(String photoPath, XFile? file) async {
     if (file == null) return;
     final storageRef = FirebaseStorage.instance.ref();
@@ -74,15 +82,16 @@ class ShowsBloc extends BlocBaseWithState<ScreenState> {
           audioId: item?.audio),
     ];
 
-      context.router
-          .push(ChangeRoute(
-              fields: fields,
-              title: 'Show',
-              onSave: () => {
-                    onSave(context, fields, item, i,
-                        isCreate: item?.id == null, newUuid: uuid),
-                  }))
-          .whenComplete(() => init());
+    context.router
+        .push(ChangeRoute(
+            fields: fields,
+            title: 'Show',
+            onSave: () => {
+                  onSave(context, fields, item, i,
+                      isCreate: item?.id == null, newUuid: uuid),
+                },
+            onDelete: () => delete(item?.id ?? '', context)))
+        .whenComplete(() => init());
   }
 
   onSave(BuildContext context, List<FieldModel> fields, ShowModel? item, int i,
