@@ -8,6 +8,7 @@ import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:image_downloader_web/image_downloader_web.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kozachok_admin/style.dart';
 import 'package:kozachok_admin/theme/theme_extensions/app_button_theme.dart';
@@ -354,28 +355,34 @@ class _AvatarWidgetState extends State<_AvatarWidget> {
                             ),
                           ))),
         Space.h8,
-        Stack(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: CustomButton(
-                text: 'Move here',
-              ),
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: DropzoneView(
-                onDrop: _uploadPhotoDrag,
-                onHover: () => setState(() => isHighlighted = true),
-                onLeave: () => setState(() => isHighlighted = false),
-                onCreated: (controller) => this.controller = controller,
-              ),
-            ),
-          ],
-        )
+        if (image?.isNotEmpty ?? false)
+          InkWell(
+              onTap: () => _downloadPhoto(image, widget.field?.imageId ?? ''),
+              child: Text('Download photo',
+                  style: BS.reg16.apply(
+                      decoration: TextDecoration.underline, color: BC.white))),
+        // Stack(
+        //   children: [
+        //     const Padding(
+        //       padding: EdgeInsets.only(right: 16),
+        //       child: CustomButton(
+        //         text: 'Move here',
+        //       ),
+        //     ),
+        //     Positioned(
+        //       top: 0,
+        //       left: 0,
+        //       right: 0,
+        //       bottom: 0,
+        //       child: DropzoneView(
+        //         onDrop: _uploadPhotoDrag,
+        //         onHover: () => setState(() => isHighlighted = true),
+        //         onLeave: () => setState(() => isHighlighted = false),
+        //         onCreated: (controller) => this.controller = controller,
+        //       ),
+        //     ),
+        //   ],
+        // )
       ],
     );
   }
@@ -394,6 +401,13 @@ class _AvatarWidgetState extends State<_AvatarWidget> {
     final photo = await mountainsRef.getData();
     final xFile = XFile.fromData(photo!, name: photoPath);
     return await xFile.readAsBytes();
+  }
+
+  _downloadPhoto(Uint8List? image, String? name) async {
+    if (image?.isNotEmpty ?? false) {
+      await WebImageDownloader.downloadImageFromUInt8List(
+          uInt8List: image!, name: 'photo_$name');
+    }
   }
 
   _uploadPhoto() async {
@@ -491,26 +505,26 @@ class _AudioWidgetState extends State<_AudioWidget> {
                         onTap: () => _uploadAudio(),
                         child:
                             Center(child: Text(widget.field?.audioId ?? '')))),
-        Space.h8,
-        Stack(
-          children: [
-            CustomButton(
-              text: 'Move here',
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: DropzoneView(
-                onDrop: _uploadPhotoDrag,
-                onHover: () => setState(() => isHighlighted = true),
-                onLeave: () => setState(() => isHighlighted = false),
-                onCreated: (controller) => this.controller = controller,
-              ),
-            ),
-          ],
-        )
+        // Space.h8,
+        // Stack(
+        //   children: [
+        //     CustomButton(
+        //       text: 'Move here',
+        //     ),
+        //     Positioned(
+        //       top: 0,
+        //       left: 0,
+        //       right: 0,
+        //       bottom: 0,
+        //       child: DropzoneView(
+        //         onDrop: _uploadPhotoDrag,
+        //         onHover: () => setState(() => isHighlighted = true),
+        //         onLeave: () => setState(() => isHighlighted = false),
+        //         onCreated: (controller) => this.controller = controller,
+        //       ),
+        //     ),
+        //   ],
+        // )
       ],
     );
   }

@@ -26,6 +26,8 @@ class StorageRequest {
       }
     }
 
+    final s = 'products/{{product_uuid.v1}}.jpg';
+
     return image;
   }
 
