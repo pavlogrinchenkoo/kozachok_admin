@@ -325,9 +325,9 @@ class _AvatarWidgetState extends State<_AvatarWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-            constraints: const BoxConstraints(maxWidth: 380),
+            constraints: const BoxConstraints(maxWidth: 400),
             width: double.infinity,
-            height: 200,
+            height: (widget.field?.isShow ?? false) ? 400 : 300,
             decoration: BoxDecoration(
               border: Border.all(width: 1, color: BC.primary),
               borderRadius: BorderRadius.circular(10),
@@ -718,6 +718,7 @@ class FieldModel {
   bool? enable;
   bool required;
   String? uuid;
+  bool? isShow;
 
   FieldModel(
       {this.title = '',
@@ -731,7 +732,8 @@ class FieldModel {
       this.type = FieldType.text,
       this.enable = true,
       this.required = false,
-      this.uuid}) {
+      this.uuid,
+      this.isShow}) {
     if (type == FieldType.text && controller == null) {
       controller = TextEditingController();
     }

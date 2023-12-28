@@ -74,6 +74,7 @@ class ShowsBloc extends BlocBaseWithState<ScreenState> {
           title: 'Image',
           uuid: item?.id ?? uuid,
           type: FieldType.avatar,
+          isShow: true,
           imageId: item?.photo),
       FieldModel(
           title: 'Audio',
