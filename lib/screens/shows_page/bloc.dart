@@ -71,6 +71,13 @@ class ShowsBloc extends BlocBaseWithState<ScreenState> {
         controller: TextEditingController(text: item?.description),
       ),
       FieldModel(
+        title: 'The date of the',
+        type: FieldType.dateTime,
+        required: true,
+        controller:
+            TextEditingController(text: item?.theDateOfThe?.toIso8601String()),
+      ),
+      FieldModel(
           title: 'Image',
           uuid: item?.id ?? uuid,
           type: FieldType.avatar,
@@ -98,13 +105,20 @@ class ShowsBloc extends BlocBaseWithState<ScreenState> {
   onSave(BuildContext context, List<FieldModel> fields, ShowModel? item, int i,
       {bool isCreate = false, String? newUuid}) async {
     final newModel = ShowModel(
-        title: fields.firstWhere((i) => i.title == 'Title').controller?.text,
-        description:
-            fields.firstWhere((i) => i.title == 'Description').controller?.text,
-        photo: fields.firstWhere((i) => i.title == 'Image').imageId,
-        audio: fields.firstWhere((i) => i.title == 'Audio').audioId,
-        id: item?.id,
-        date: item?.date ?? DateTime.now());
+      title: fields.firstWhere((i) => i.title == 'Title').controller?.text,
+      description:
+          fields.firstWhere((i) => i.title == 'Description').controller?.text,
+      photo: fields.firstWhere((i) => i.title == 'Image').imageId,
+      audio: fields.firstWhere((i) => i.title == 'Audio').audioId,
+      id: item?.id,
+      date: item?.date ?? DateTime.now(),
+      theDateOfThe: DateTime.tryParse(fields
+                  .firstWhere((i) => i.title == 'The date of the')
+                  .controller
+                  ?.text ??
+              '') ??
+          DateTime.now(),
+    );
 
     if (isCreate) {
       onCreate(context, newModel, i, newUuid ?? '');

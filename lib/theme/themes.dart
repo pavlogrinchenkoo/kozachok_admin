@@ -162,6 +162,13 @@ class AppThemeData {
           onBackground: BC.gray,
           surface: BC.white,
           onSurface: BC.white),
+      timePickerTheme: TimePickerThemeData(
+        elevation: 1,
+        backgroundColor: kScreenBackgroundColor,
+        hourMinuteTextColor: kScreenBackgroundColor,
+        dialBackgroundColor: BC.gray,
+        dayPeriodTextColor: BC.white,
+      ),
       datePickerTheme: DatePickerThemeData(
         rangePickerElevation: 1,
         elevation: 1,

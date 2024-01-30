@@ -207,13 +207,15 @@ class _CustomFieldWidgetState extends State<CustomFieldWidget> {
       );
     } else if (widget.field?.type == FieldType.dateTime) {
       return FormBuilderDateTimePicker(
+        initialTime:  TimeOfDay.fromDateTime(DateTime.now()),
+        timePickerInitialEntryMode: TimePickerEntryMode.input,
         name: widget.field?.title ?? '',
         onChanged: (DateTime? value) {
           if (value != null) {
             widget.field?.controller?.text = (value).toIso8601String();
           }
         },
-        inputType: InputType.date,
+        inputType: InputType.both,
         decoration: InputDecoration(
           labelText: widget.field?.title ?? '',
           border: const OutlineInputBorder(),

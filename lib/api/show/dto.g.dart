@@ -14,6 +14,9 @@ ShowModel _$ShowModelFromJson(Map<String, dynamic> json) => ShowModel(
       description: json['description'] as String?,
       photo: json['photo'] as String?,
       audio: json['audio'] as String?,
+      theDateOfThe: json['theDateOfThe'] == null
+          ? null
+          : DateTime.parse(json['theDateOfThe'] as String),
     );
 
 Map<String, dynamic> _$ShowModelToJson(ShowModel instance) => <String, dynamic>{
@@ -23,4 +26,5 @@ Map<String, dynamic> _$ShowModelToJson(ShowModel instance) => <String, dynamic>{
       'description': instance.description,
       'photo': instance.photo,
       'audio': instance.audio,
+      'theDateOfThe': instance.theDateOfThe?.toIso8601String(),
     };

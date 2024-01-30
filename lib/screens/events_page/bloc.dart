@@ -107,7 +107,7 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
     context.router
         .push(ChangeRoute(
             fields: fields,
-            title: 'Show',
+            title: 'Event',
             onSave: () => {
                   onSave(context, fields, item, i,
                       isCreate: item?.id == null, newUuid: uuid),

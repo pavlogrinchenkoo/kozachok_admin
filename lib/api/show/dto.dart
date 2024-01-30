@@ -12,9 +12,17 @@ class ShowModel {
   String? description;
   String? photo;
   String? audio;
+  DateTime? theDateOfThe;
 
-
-  ShowModel({this.id, this.date, this.title, this.description, this.photo, this.audio});
+  ShowModel({
+    this.id,
+    this.date,
+    this.title,
+    this.description,
+    this.photo,
+    this.audio,
+    this.theDateOfThe,
+  });
 
   factory ShowModel.fromJson(Map<String, dynamic> json) =>
       _$ShowModelFromJson(json);
