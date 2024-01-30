@@ -4,9 +4,9 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
 const RESOURCES = {"version.json": "25a68e29ff26b7bcf4324e020c459352",
-"index.html": "0c2475df15444b612443d8a46c1315b7",
-"/": "0c2475df15444b612443d8a46c1315b7",
-"main.dart.js": "31321ec16576eac2bb8d4c98736f842d",
+"index.html": "dd510a953973e6d3f07f505dc831778e",
+"/": "dd510a953973e6d3f07f505dc831778e",
+"main.dart.js": "1afef606effd2034a6fc40c8c01e3565",
 "flutter.js": "7d69e653079438abfbb24b82a655b0a4",
 "favicon.png": "4fbaf3140ca9edd5ae5cccec2397728f",
 "icons/Icon-192.png": "35f74afc5612068fe026325e4dbd85fa",
@@ -25,13 +25,13 @@ const RESOURCES = {"version.json": "25a68e29ff26b7bcf4324e020c459352",
 "assets/fonts/Gotham-Book.ttf": "e8927415373262bd04a83ef480b99f3b",
 "assets/fonts/Gotham-Medium.ttf": "aa591497ced110ddfcc99e784534fee3",
 "assets/fonts/Gotham-Bold.ttf": "c4ae957126764824d354faf04f788c34",
-"assets/fonts/MaterialIcons-Regular.otf": "7b38ce4eb6ac758ba8f3ee0a4093abfb",
+"assets/fonts/MaterialIcons-Regular.otf": "f16468e59d29da159ecb3c4ed032c6da",
 "canvaskit/skwasm.js": "87063acf45c5e1ab9565dcf06b0c18b8",
-"canvaskit/skwasm.wasm": "2fc47c0a0c3c7af8542b601634fe9674",
+"canvaskit/skwasm.wasm": "4124c42a73efa7eb886d3400a1ed7a06",
 "canvaskit/chromium/canvaskit.js": "0ae8bbcc58155679458a0f7a00f66873",
-"canvaskit/chromium/canvaskit.wasm": "143af6ff368f9cd21c863bfa4274c406",
+"canvaskit/chromium/canvaskit.wasm": "f87e541501c96012c252942b6b75d1ea",
 "canvaskit/canvaskit.js": "eb8797020acdbdf96a12fb0405582c1b",
-"canvaskit/canvaskit.wasm": "73584c1a3367e3eaf757647a8f5c5989",
+"canvaskit/canvaskit.wasm": "64edb91684bdb3b879812ba2e48dd487",
 "canvaskit/skwasm.worker.js": "bfb704a6c714a75da9ef320991e88b03"};
 // The application shell files that are downloaded before a service worker can
 // start.
