@@ -81,7 +81,7 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
       FieldModel(
         title: 'Description',
         type: FieldType.text,
-        controller: TextEditingController(text: item?.name),
+        controller: TextEditingController(text: item?.desc),
       ),
       FieldModel(
         title: 'The date of the',
