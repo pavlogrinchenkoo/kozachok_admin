@@ -5,7 +5,6 @@ import 'package:kozachok_admin/api/events/request.dart';
 import 'package:kozachok_admin/routers/routes.dart';
 import 'package:kozachok_admin/utils/bloc_base.dart';
 import 'package:kozachok_admin/widgets/chage_page.dart';
-import 'package:path/path.dart';
 import 'package:uuid/uuid.dart';
 
 class EventsBloc extends BlocBaseWithState<ScreenState> {
@@ -93,7 +92,7 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
       FieldModel(
         title: 'Contact',
         type: FieldType.text,
-        controller: TextEditingController(text: item?.name),
+        controller: TextEditingController(text: item?.contact),
       ),
       FieldModel(
         title: 'Status',
@@ -133,8 +132,11 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
                     ?.text ??
                 '') ??
             DateTime.now(),
-        contact:
-            fields.firstWhere((i) => i.title == 'Contact').controller?.text,
+        contact: fields
+            .firstWhere((i) => i.title == 'Contact')
+            .controller
+            ?.text
+            .toString(),
         status: fields.firstWhere((i) => i.title == 'Status').enumValue,
         id: item?.id,
         date: item?.date ?? DateTime.now());
