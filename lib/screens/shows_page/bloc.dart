@@ -151,6 +151,7 @@ class ShowsBloc extends BlocBaseWithState<ScreenState> {
         description: newModel.description,
         photo: newModel.photo,
         date: newModel.date,
+        theDateOfThe: newModel.theDateOfThe,
         id: newUuid);
 
     final res = await _request.create(requestModel);
