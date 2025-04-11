@@ -14,7 +14,6 @@ import 'package:kozachok_admin/style.dart';
 import 'package:kozachok_admin/theme/theme_extensions/app_button_theme.dart';
 import 'package:kozachok_admin/widgets/app_bar_back_button.dart';
 import 'package:kozachok_admin/widgets/card_elements.dart';
-
 // import 'package:kozachok_admin/widgets/crop/crop_your_image.dart';
 import 'package:kozachok_admin/widgets/custom_button.dart';
 import 'package:kozachok_admin/widgets/custom_circular_progress_indicator.dart';
@@ -207,7 +206,7 @@ class _CustomFieldWidgetState extends State<CustomFieldWidget> {
       );
     } else if (widget.field?.type == FieldType.dateTime) {
       return FormBuilderDateTimePicker(
-        initialTime:  TimeOfDay.fromDateTime(DateTime.now()),
+        initialTime: TimeOfDay.fromDateTime(DateTime.now()),
         timePickerInitialEntryMode: TimePickerEntryMode.input,
         name: widget.field?.title ?? '',
         onChanged: (DateTime? value) {
@@ -765,22 +764,30 @@ String getFileExtension(String? fileName) {
 cropFile(imageFile, BuildContext context) async {
   return await ImageCropper().cropImage(
     sourcePath: imageFile.path,
-    aspectRatioPresets: [
-      CropAspectRatioPreset.square,
-      CropAspectRatioPreset.ratio3x2,
-      CropAspectRatioPreset.original,
-      CropAspectRatioPreset.ratio4x3,
-      CropAspectRatioPreset.ratio16x9
-    ],
     uiSettings: [
       AndroidUiSettings(
-          toolbarTitle: 'Cropper',
-          toolbarColor: Colors.deepOrange,
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: false),
+        toolbarTitle: 'Cropper',
+        toolbarColor: Colors.deepOrange,
+        toolbarWidgetColor: Colors.white,
+        initAspectRatio: CropAspectRatioPreset.original,
+        lockAspectRatio: false,
+        aspectRatioPresets: [
+          CropAspectRatioPreset.square,
+          CropAspectRatioPreset.ratio3x2,
+          CropAspectRatioPreset.original,
+          CropAspectRatioPreset.ratio4x3,
+          CropAspectRatioPreset.ratio16x9
+        ],
+      ),
       IOSUiSettings(
         title: 'Cropper',
+        aspectRatioPresets: [
+          CropAspectRatioPreset.square,
+          CropAspectRatioPreset.ratio3x2,
+          CropAspectRatioPreset.original,
+          CropAspectRatioPreset.ratio4x3,
+          CropAspectRatioPreset.ratio16x9
+        ],
       ),
       WebUiSettings(
         context: context,

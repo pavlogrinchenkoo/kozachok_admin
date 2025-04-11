@@ -11,7 +11,7 @@ import 'package:kozachok_admin/widgets/chage_page.dart';
 part 'routes.gr.dart';
 
 @AutoRouterConfig()
-class AppRouter extends _$AppRouter {
+class AppRouter extends RootStackRouter {
   @override
   final List<AutoRoute> routes = [
     AutoRoute(path: '/', page: SplashRoute.page),

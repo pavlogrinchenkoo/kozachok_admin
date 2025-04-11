@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 // **************************************************************************
@@ -9,78 +10,20 @@
 
 part of 'routes.dart';
 
-abstract class _$AppRouter extends RootStackRouter {
-  // ignore: unused_element
-  _$AppRouter({super.navigatorKey});
-
-  @override
-  final Map<String, PageFactory> pagesMap = {
-    BugsRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const BugsPage(),
-      );
-    },
-    ChangeRoute.name: (routeData) {
-      final args = routeData.argsAs<ChangeRouteArgs>(
-          orElse: () => const ChangeRouteArgs());
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: ChangePage(
-          fields: args.fields,
-          title: args.title,
-          onSave: args.onSave,
-          onDelete: args.onDelete,
-          widget: args.widget,
-          key: args.key,
-        ),
-      );
-    },
-    EventsRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const EventsPage(),
-      );
-    },
-    MainRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const MainScreen(),
-      );
-    },
-    OfferedGuestsRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const OfferedGuestsPage(),
-      );
-    },
-    ShowsRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const ShowsPage(),
-      );
-    },
-    SplashRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const SplashScreen(),
-      );
-    },
-  };
-}
-
 /// generated route for
 /// [BugsPage]
 class BugsRoute extends PageRouteInfo<void> {
   const BugsRoute({List<PageRouteInfo>? children})
-      : super(
-          BugsRoute.name,
-          initialChildren: children,
-        );
+    : super(BugsRoute.name, initialChildren: children);
 
   static const String name = 'BugsRoute';
 
-  static const PageInfo<void> page = PageInfo<void>(name);
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const BugsPage();
+    },
+  );
 }
 
 /// generated route for
@@ -95,21 +38,36 @@ class ChangeRoute extends PageRouteInfo<ChangeRouteArgs> {
     Key? key,
     List<PageRouteInfo>? children,
   }) : super(
-          ChangeRoute.name,
-          args: ChangeRouteArgs(
-            fields: fields,
-            title: title,
-            onSave: onSave,
-            onDelete: onDelete,
-            widget: widget,
-            key: key,
-          ),
-          initialChildren: children,
-        );
+         ChangeRoute.name,
+         args: ChangeRouteArgs(
+           fields: fields,
+           title: title,
+           onSave: onSave,
+           onDelete: onDelete,
+           widget: widget,
+           key: key,
+         ),
+         initialChildren: children,
+       );
 
   static const String name = 'ChangeRoute';
 
-  static const PageInfo<ChangeRouteArgs> page = PageInfo<ChangeRouteArgs>(name);
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<ChangeRouteArgs>(
+        orElse: () => const ChangeRouteArgs(),
+      );
+      return ChangePage(
+        fields: args.fields,
+        title: args.title,
+        onSave: args.onSave,
+        onDelete: args.onDelete,
+        widget: args.widget,
+        key: args.key,
+      );
+    },
+  );
 }
 
 class ChangeRouteArgs {
@@ -144,68 +102,78 @@ class ChangeRouteArgs {
 /// [EventsPage]
 class EventsRoute extends PageRouteInfo<void> {
   const EventsRoute({List<PageRouteInfo>? children})
-      : super(
-          EventsRoute.name,
-          initialChildren: children,
-        );
+    : super(EventsRoute.name, initialChildren: children);
 
   static const String name = 'EventsRoute';
 
-  static const PageInfo<void> page = PageInfo<void>(name);
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const EventsPage();
+    },
+  );
 }
 
 /// generated route for
 /// [MainScreen]
 class MainRoute extends PageRouteInfo<void> {
   const MainRoute({List<PageRouteInfo>? children})
-      : super(
-          MainRoute.name,
-          initialChildren: children,
-        );
+    : super(MainRoute.name, initialChildren: children);
 
   static const String name = 'MainRoute';
 
-  static const PageInfo<void> page = PageInfo<void>(name);
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const MainScreen();
+    },
+  );
 }
 
 /// generated route for
 /// [OfferedGuestsPage]
 class OfferedGuestsRoute extends PageRouteInfo<void> {
   const OfferedGuestsRoute({List<PageRouteInfo>? children})
-      : super(
-          OfferedGuestsRoute.name,
-          initialChildren: children,
-        );
+    : super(OfferedGuestsRoute.name, initialChildren: children);
 
   static const String name = 'OfferedGuestsRoute';
 
-  static const PageInfo<void> page = PageInfo<void>(name);
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const OfferedGuestsPage();
+    },
+  );
 }
 
 /// generated route for
 /// [ShowsPage]
 class ShowsRoute extends PageRouteInfo<void> {
   const ShowsRoute({List<PageRouteInfo>? children})
-      : super(
-          ShowsRoute.name,
-          initialChildren: children,
-        );
+    : super(ShowsRoute.name, initialChildren: children);
 
   static const String name = 'ShowsRoute';
 
-  static const PageInfo<void> page = PageInfo<void>(name);
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ShowsPage();
+    },
+  );
 }
 
 /// generated route for
 /// [SplashScreen]
 class SplashRoute extends PageRouteInfo<void> {
   const SplashRoute({List<PageRouteInfo>? children})
-      : super(
-          SplashRoute.name,
-          initialChildren: children,
-        );
+    : super(SplashRoute.name, initialChildren: children);
 
   static const String name = 'SplashRoute';
 
-  static const PageInfo<void> page = PageInfo<void>(name);
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const SplashScreen();
+    },
+  );
 }

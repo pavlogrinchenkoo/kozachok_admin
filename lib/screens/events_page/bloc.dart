@@ -20,14 +20,16 @@ class EventsBloc extends BlocBaseWithState<ScreenState> {
     setState(currentState.copyWith(loading: true));
     final List<EventModel> events = await _request.getEvents();
     events.removeWhere((element) {
-      if (element.theDateOfThe!.difference(DateTime.now()).inDays < 0) {
+      if ((element.theDateOfThe?.difference(DateTime.now()).inDays ?? 0) < 0) {
         _request.delete(element.id ?? '', context, withOutDialog: true);
         return true;
       } else {
         return false;
       }
     });
-    events.sort((a, b) => b.theDateOfThe!.compareTo(a.theDateOfThe!));
+    events.sort((a, b) => (a.theDateOfThe != null || b.theDateOfThe != null)
+        ? b.theDateOfThe?.compareTo(a.theDateOfThe!) ?? 0
+        : 0);
     setState(currentState.copyWith(events: events, loading: false));
   }
 

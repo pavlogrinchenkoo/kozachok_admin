@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kozachok_admin/style.dart';
 
 class AppDataTableTheme extends ThemeExtension<AppDataTableTheme> {
-  final CardTheme cardTheme;
+  final CardThemeData cardTheme;
   final DataTableThemeData dataTableThemeData;
 
   const AppDataTableTheme({
@@ -25,7 +25,7 @@ class AppDataTableTheme extends ThemeExtension<AppDataTableTheme> {
 
   @override
   ThemeExtension<AppDataTableTheme> copyWith({
-    CardTheme? cardTheme,
+    CardThemeData? cardTheme,
     DataTableThemeData? dataTableThemeData,
   }) {
     return AppDataTableTheme(
